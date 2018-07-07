@@ -20,7 +20,7 @@ func checkError(err error) {
 	}
 }
 
-func updateRedis(db0 *redis.Client, m uint32, a map[string]interface{}) {
+func updateRedis(db0 *redis.Client, db1 *redis.Client, m uint32, a map[string]interface{}) {
 	mmsi := strconv.FormatUint(uint64(m), 10)
 
 	// write to db0
@@ -32,14 +32,13 @@ func updateRedis(db0 *redis.Client, m uint32, a map[string]interface{}) {
 
 	// set to expire
 	db0.Expire(mmsi, 12*time.Hour)
-	/*
-		// write to db1
-		_, err = db1.HMSet(t.PositionReport.MMSI, b).Result()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-	*/
+
+	// write to db1
+	_, err = db1.HMSet(mmsi, a).Result()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }
 
 func main() {
@@ -88,7 +87,7 @@ func main() {
 	}
 
 	// start web server
-	//	go api(db0)
+	go api(db0)
 
 	buffer := make([]byte, 1024)
 
@@ -125,23 +124,23 @@ func main() {
 			case 1, 2, 3:
 				t, _ := ais.DecodeClassAPositionReport(message.Payload)
 				a := decodeA(t)
-				updateRedis(db0, t.MMSI, a)
+				updateRedis(db0, db1, t.MMSI, a)
 			case 4:
 				t, _ := ais.DecodeBaseStationReport(message.Payload)
 				a := decodeBase(t)
-				updateRedis(db0, t.MMSI, a)
+				updateRedis(db0, db1, t.MMSI, a)
 			case 5:
 				t, _ := ais.DecodeStaticVoyageData(message.Payload)
 				a := decodeV(t)
-				updateRedis(db0, t.MMSI, a)
+				updateRedis(db0, db1, t.MMSI, a)
 			case 8:
 				t, _ := ais.DecodeBinaryBroadcast(message.Payload)
 				a := decodeBinary(t)
-				updateRedis(db0, t.MMSI, a)
+				updateRedis(db0, db1, t.MMSI, a)
 			case 18:
 				t, _ := ais.DecodeClassBPositionReport(message.Payload)
 				a := decodeB(t)
-				updateRedis(db0, t.MMSI, a)
+				updateRedis(db0, db1, t.MMSI, a)
 			default:
 			}
 		case problematic = <-failed:
