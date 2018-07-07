@@ -45,7 +45,7 @@ func updateRedis(db0 *redis.Client, m uint32, a map[string]interface{}) {
 func main() {
 
 	// get config
-	rds, fwd, fwdadr, lsn := config()
+	rds, fwd, fwdadr, lsn := Config()
 
 	// set up udp listener
 	server, err := net.ResolveUDPAddr("udp", lsn)
@@ -75,13 +75,16 @@ func main() {
 	checkError(err)
 
 	// set up udp forwarder
-	var con *net.UDPConn
+	var con []*net.UDPConn
 	if fwd == true {
-		serverAddr, err := net.ResolveUDPAddr("udp", fwdadr)
-		checkError(err)
-		con, err = net.DialUDP("udp", nil, serverAddr)
-		checkError(err)
-		defer con.Close()
+		for _, v := range fwdadr {
+			serverAddr, err := net.ResolveUDPAddr("udp", v)
+			checkError(err)
+			c, err := net.DialUDP("udp", nil, serverAddr)
+			checkError(err)
+			defer c.Close()
+			con = append(con, c)
+		}
 	}
 
 	// start web server
@@ -105,7 +108,9 @@ func main() {
 
 		// if forwarder configured then forward
 		if fwd == true {
-			con.Write(buffer[0:n])
+			for _, v := range con {
+				v.Write(buffer[0:n])
+			}
 		}
 
 		var message ais.Message

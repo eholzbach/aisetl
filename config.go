@@ -1,77 +1,30 @@
 package main
 
 import (
-	"fmt"
-	"io/ioutil"
-	"os"
-	"os/user"
-	"runtime"
-	"strings"
+	"github.com/spf13/viper"
 )
 
-func config() (string, bool, string, string) {
+func Config() (string, bool, []string, string) {
+	viper.SetConfigName("aisetl")
+	viper.SetConfigName(".aisetl")
+	viper.AddConfigPath("/etc/")
+	viper.AddConfigPath("/usr/local/etc/")
+	viper.AddConfigPath("$HOME/")
+	viper.AddConfigPath(".")
 
-	var fwd string
-	var lsn string
-	var rds string
-
-	user, err := user.Current()
+	err := viper.ReadInConfig()
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
-	home := user.HomeDir
-	const conf string = "/.aisetl.conf"
-	d := home + conf
+	viper.WatchConfig()
 
-	var e string
-	if _, err := os.Stat(d); os.IsNotExist(err) {
-		if runtime.GOOS == "freebsd" {
-			e = "/usr/local/etc/aisetl.conf"
-		} else {
-			e = "/etc/aisetl.conf"
-		}
-	} else {
-		e = d
+	f := viper.GetStringSlice("forward")
+
+	forward := true
+	if len(f) == 0 {
+		forward = false
 	}
 
-	if _, err := os.Stat(e); err == nil {
-
-		f, err := ioutil.ReadFile(e)
-
-		if err != nil {
-			panic(err)
-		}
-
-		g := strings.Split(string(f), "\n")
-
-		for _, v := range g {
-			t := strings.TrimSpace(v)
-			if strings.HasPrefix(t, "forward ") {
-				fwd = strings.TrimPrefix(t, "forward ")
-			}
-			if strings.HasPrefix(t, "listen ") {
-				lsn = strings.TrimPrefix(t, "listen ")
-			}
-			if strings.HasPrefix(t, "redis ") {
-				rds = strings.TrimPrefix(t, "redis ")
-			}
-		}
-	} else {
-		fmt.Println("config not found, exiting")
-		os.Exit(0)
-	}
-	if len(lsn) <= 1 {
-		lsn = "127.0.0.1:10110"
-	}
-	if len(rds) <= 1 {
-		fmt.Println("redis server config not found, exiting")
-		os.Exit(0)
-	}
-
-	if len(fwd) > 0 {
-		return rds, true, fwd, lsn
-	} else {
-		return rds, false, fwd, lsn
-	}
+	return viper.GetString("redis"), forward, f, viper.GetString("listen")
 }
