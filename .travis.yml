@@ -1,0 +1,13 @@
+language: go
+
+go_import_path: github.com/eholzbach/aisetl
+
+os:
+          - linux
+              - osx
+
+install:
+          - go get -t -v ./...
+
+script:
+          - diff -u <(echo -n) <(gofmt -d .)
