@@ -87,7 +87,7 @@ func main() {
 	}
 
 	// start web server
-	go api(db0)
+	go webServer(db0)
 
 	buffer := make([]byte, 1024)
 
