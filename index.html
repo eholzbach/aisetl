@@ -27,6 +27,66 @@
 
 <div id="mapid" ></div>
 <script>
+
+const shipStyle = `
+  background-color: #583470;
+  width: 1rem;
+  height: 1rem;
+  display: block;
+  left: -1.5rem;
+  top: -1.5rem;
+  position: relative;
+  border-radius: 1rem 1rem 0;
+  transform: rotate(45deg);
+  border: 2px solid #FFFFFF`
+
+const shipIcon = L.divIcon({
+  className: "ship",
+  iconAnchor: [0, 24],
+  labelAnchor: [-6, 0],
+  popupAnchor: [0, -36],
+  html: `<span style="${shipStyle}" />`
+})
+
+const baseStyle = `
+  background-color: #9FF781;
+  width: 1rem;
+  height: 1rem;
+  display: block;
+  left: -1.5rem;
+  top: -1.5rem;
+  position: relative;
+  border-radius: 1rem 1rem 0;
+  transform: rotate(45deg);
+  border: 2px solid #FFFFFF`
+
+const baseIcon = L.divIcon({
+  className: "base",
+  iconAnchor: [0, 24],
+  labelAnchor: [-6, 0],
+  popupAnchor: [0, -36],
+  html: `<span style="${baseStyle}" />`
+})
+
+const otherStyle = `
+  background-color: #ff2424;
+  width: 1rem;
+  height: 1rem;
+  display: block;
+  left: -1.5rem;
+  top: -1.5rem;
+  position: relative;
+  border-radius: 1rem 1rem 0;
+  transform: rotate(45deg);
+  border: 2px solid #FFFFFF`
+
+const otherIcon = L.divIcon({
+  className: "other",
+  iconAnchor: [0, 24],
+  labelAnchor: [-6, 0],
+  popupAnchor: [0, -36],
+  html: `<span style="${otherStyle}" />`
+})
 	var mymap = L.map('mapid', {zoomControl: false}).setView([47.6332745,-122.3235537], 9);
 	L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
 		maxZoom: 18,
