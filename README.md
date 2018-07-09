@@ -1,6 +1,6 @@
 ## AISETL [![Build Status](https://travis-ci.org/eholzbach/aisetl.svg?branch=master)](https://travis-ci.org/eholzbach/aisetl)
 
-AISETL reads udp packets containing AIS NMEA messages, extracts the data, and loads it into redis. It also provides a web server that displays data points on a map.
+AISETL reads udp packets containing AIS NMEA messages, extracts the data, and loads it into redis. It also provides a web server that displays data points on a map. Here is the [view from my station](https://boats.sealab.xyz/).
 
 I'm feeding this with [rtl-ais](https://github.com/dgiardini/rtl-ais) using a RTL2832U usb sdr and a home made coaxial collinear antenna attached to a raspberry pi.
 
